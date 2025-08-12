@@ -1,0 +1,47 @@
+{
+  "name": "payment-monitoring-backend",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-frontend": "cd ../frontend && npm run build-and-copy",
+    "start-with-frontend": "npm run build-frontend && npm start",
+    "start-prod": "npm run build-frontend && pm2 start src/index.js",
+    "restart-prod": "npm run build-frontend && pm2 restart src/index.js",
+    "setup-puppeteer": "sudo bash scripts/setup-puppeteer.sh",
+    "start-with-xvfb": "xvfb-run --server-args='-screen 0 1920x1080x24' npm start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@sentry/node": "^9.35.0",
+    "@sentry/profiling-node": "^9.35.0",
+    "axios": "^1.9.0",
+    "bcryptjs": "^2.4.3",
+    "bull": "^4.12.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "lru-cache": "^11.1.0",
+    "mongoose": "^8.2.1",
+    "mongoose-delete": "^1.0.2",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.2",
+    "node-cron": "^3.0.3",
+    "puppeteer": "^22.15.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "redis": "^4.6.13",
+    "winston": "^3.17.0",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
