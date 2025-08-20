@@ -1,0 +1,175 @@
+{
+  "scenarios": {
+    "slip_request": {
+      "description": "Checker requests slip/receipt from franchise",
+      "checker_messages": [
+        "iski silp send karen bhaiya",
+        "inki silp send kare",
+        "slip send kare"
+      ],
+      "franchise_responses": [
+        {
+          "type": "acknowledgment",
+          "examples": ["kar rhe ha sir", "hnji kar rahe hai sir", "ok sir", "kar rahe hai sir"],
+          "ai_followup": "Thik hai, jaldi se send kar dena. Time limit hai."
+        },
+        {
+          "type": "technical_issue",
+          "examples": ["slip upload nhi ho rha", "system down hai", "net slow hai"],
+          "ai_followup": "Koi baat nhi, thoda wait karo aur phir try karo. Agar problem continue ho to batana."
+        },
+        {
+          "type": "not_received",
+          "examples": ["not rec", "nhi mila", "receive nhi hua"],
+          "ai_followup": "Client ko boliye proper slip upload kare with proper date time. Check kar ke phir se send kare."
+        }
+      ]
+    },
+    "transaction_check": {
+      "description": "Checking if transaction is received",
+      "checker_messages": [
+        "check rec",
+        "rec hai tu wait q karwa rahy hain",
+        "clear karen ye"
+      ],
+      "franchise_responses": [
+        {
+          "type": "checking",
+          "examples": ["checking sir", "ok sir wait checking", "dekhte hai"],
+          "ai_followup": "Jaldi check karo, customer wait kar raha hai."
+        },
+        {
+          "type": "received",
+          "examples": ["rec", "ho gya sir", "clear kar diya"],
+          "ai_followup": "Good! Client ko inform kar do."
+        },
+        {
+          "type": "not_received",
+          "examples": ["not rec", "nhi aya", "pending hai"],
+          "ai_followup": "UTR check karo properly. Agar sab thik hai to bank se confirm karo."
+        }
+      ]
+    },
+    "bank_details_request": {
+      "description": "Request for bank account details",
+      "checker_messages": [
+        "bank detail send keren",
+        "account details chahiye"
+      ],
+      "franchise_responses": [
+        {
+          "type": "providing_details",
+          "examples": ["bank details", "active sir", "details send kar raha hun"],
+          "ai_followup": "Details check kar ke active confirm karo. Validity time batana."
+        },
+        {
+          "type": "bank_issue",
+          "examples": ["bank down hai", "server issue hai", "maintenance chal raha"],
+          "ai_followup": "Alternative bank details de do. Ya phir time bata do kab tak theek hoga."
+        }
+      ]
+    },
+    "approval_request": {
+      "description": "Request for transaction approval",
+      "checker_messages": [
+        "approved kijiye",
+        "clear kare ye",
+        "UTR update kare"
+      ],
+      "franchise_responses": [
+        {
+          "type": "approved",
+          "examples": ["approved", "aproved", "done sir", "ho gya"],
+          "ai_followup": "Good! Next transaction ready karo."
+        },
+        {
+          "type": "pending_info",
+          "examples": ["UTR nhi mil rha", "amount confirm nhi", "details missing"],
+          "ai_followup": "Client se proper details manga. Complete information chahiye approval ke liye."
+        }
+      ]
+    },
+    "time_delay_complaint": {
+      "description": "Checker complaining about delays",
+      "checker_messages": [
+        "kitna time lagy ha clear hony me",
+        "jaldi clear kare",
+        "wait q karwa rahy hain"
+      ],
+      "franchise_responses": [
+        {
+          "type": "working_on_it",
+          "examples": ["kar rahe hai sir", "bas 5 minute", "ho raha hai"],
+          "ai_followup": "Jaldi karo. Customer ko zyada wait nhi karwana chahiye."
+        },
+        {
+          "type": "lunch_break",
+          "examples": ["lunch kar rahe hai", "khana kha rahe hai", "break hai"],
+          "ai_followup": "Jaldi se khana khatam kar ke kam karo. Priority hai ye."
+        },
+        {
+          "type": "technical_delay",
+          "examples": ["bank server slow", "system hang ho raha", "net issue"],
+          "ai_followup": "System issue hai to alternative method use karo. Ya customer ko inform karo delay ke bare me."
+        }
+      ]
+    },
+    "id_verification": {
+      "description": "ID check and verification requests",
+      "checker_messages": [
+        "ID CHECK",
+        "client ki id check karo",
+        "ye kis branch ka hai"
+      ],
+      "franchise_responses": [
+        {
+          "type": "id_found",
+          "examples": ["Khalid120", "id mil gayi", "client ka naam xyz"],
+          "ai_followup": "ID confirm kar ke proceed karo transaction ke sath."
+        },
+        {
+          "type": "id_not_found",
+          "examples": ["id show nhi ho rhi", "nhi mil rha", "database me nhi hai"],
+          "ai_followup": "Client se proper ID details manga. Ya phir alternative branch try karo."
+        }
+      ]
+    }
+  },
+  "common_responses": {
+    "acknowledgment": ["ok sir", "theek hai", "kar denge", "ji haan"],
+    "delay_excuses": ["thoda time lagega", "5 minute", "bas ho raha hai", "net slow hai"],
+    "technical_issues": ["system down", "server issue", "bank problem", "net nhi aa rha"],
+    "completion": ["ho gya", "done", "complete", "clear kar diya"]
+  },
+  "ai_response_templates": {
+    "urgency": [
+      "Jaldi karo, customer wait kar raha hai.",
+      "Time limit hai, fast complete karo.",
+      "Priority transaction hai, delay mat karo."
+    ],
+    "technical_help": [
+      "Technical issue hai to alternative method try karo.",
+      "System problem ho to manual process use karo.",
+      "Bank down hai to dusra account use karo."
+    ],
+    "information_request": [
+      "Proper details send karo complete ke sath.",
+      "UTR aur amount confirm kar ke bhejo.",
+      "Client se complete information le kar aao."
+    ],
+    "approval": [
+      "Approved! Next transaction ready karo.",
+      "Clear kar diya, client ko inform karo.",
+      "Done! Slip upload kar do."
+    ]
+  },
+  "other_category": {
+    "description": "Responses that don't fit into specific categories",
+    "examples": [
+      "random messages",
+      "personal conversations", 
+      "off-topic discussions"
+    ],
+    "ai_response": "Main sirf transaction related queries handle kar sakta hun. Transaction ke bare me baat karte hai."
+  }
+}
