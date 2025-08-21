@@ -2,6 +2,9 @@ const ConversationService = require('../services/conversation.service');
 const asyncHandler = require('../middleware/asyncHandler.middleware.js');
 const ResponseHandler = require('../utils/responseHandler.util.js');
 const Constants = require('../constants/index.js')
+const wsManager = require('../utils/websocket.util');
+const aiCheckerService = require('../services/ai-checker.service');
+const logger = require('../utils/logger.util');
 
 const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024;
 const ALLOWED_IMAGE_MIMETYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -105,12 +108,41 @@ class ConversationController {
       base64Image 
     });
 
-    // Broadcast message via WebSocket
-    const wsManager = require('../utils/websocket.util');
     wsManager.broadcastToConversation(conversationId, {
       type: 'new_message',
       message
     }, senderId);
+    
+    console.log('🔍 Checking AI trigger conditions:');
+    console.log('  AI_CHECKER_ENABLED:', process.env.AI_CHECKER_ENABLED);
+    console.log('  Content exists:', !!content);
+    console.log('  Content length:', content?.trim().length);
+    console.log('  Message content:', content);
+    
+    if (process.env.AI_CHECKER_ENABLED === 'true' && content && content.trim().length > 0) {
+      console.log('✅ AI checker conditions met - triggering AI processing');
+      setImmediate(async () => {
+        try {
+          console.log('🤖 Checking if AI should respond to:', content);
+          const shouldRespond = await aiCheckerService.shouldRespond(content, conversationId);
+          if (shouldRespond) {
+            console.log('✅ AI will respond - processing message');
+            await aiCheckerService.processIncomingMessage(message, conversationId);
+          } else {
+            console.log('❌ AI should not respond to this message');
+          }
+        } catch (error) {
+          console.log('💥 AI checker processing failed:', error.message);
+          logger.error('AI checker processing failed:', {
+            messageId: message._id,
+            conversationId,
+            error: error.message
+          });
+        }
+      });
+    } else {
+      console.log('❌ AI checker conditions not met');
+    }
 
     return ResponseHandler.success(res, 'Message sent successfully', message, 201);
   });
