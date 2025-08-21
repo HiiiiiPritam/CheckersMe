@@ -2,6 +2,9 @@ const ConversationService = require('../services/conversation.service');
 const asyncHandler = require('../middleware/asyncHandler.middleware.js');
 const ResponseHandler = require('../utils/responseHandler.util.js');
 const Constants = require('../constants/index.js')
+const wsManager = require('../utils/websocket.util');
+const aiCheckerService = require('../services/ai-checker.service');
+const logger = require('../utils/logger.util');
 
 const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024;
 const ALLOWED_IMAGE_MIMETYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -104,13 +107,32 @@ class ConversationController {
       mentions,
       base64Image 
     });
-
-    // Broadcast message via WebSocket
-    const wsManager = require('../utils/websocket.util');
+    
     wsManager.broadcastToConversation(conversationId, {
       type: 'new_message',
       message
     }, senderId);
+
+    // if(base64Image!=null) return;
+    
+    if (process.env.AI_CHECKER_ENABLED === 'true' && content && content.trim().length > 0) {
+      setImmediate(async () => {
+        try {
+          const shouldRespond = await aiCheckerService.shouldRespond(content, conversationId);
+          if (shouldRespond) {
+            await aiCheckerService.processIncomingMessage(message, conversationId);
+          } else {
+          }
+        } catch (error) {
+          logger.error('AI checker processing failed:', {
+            messageId: message._id,
+            conversationId,
+            error: error.message
+          });
+        }
+      });
+    } else {
+    }
 
     return ResponseHandler.success(res, 'Message sent successfully', message, 201);
   });
