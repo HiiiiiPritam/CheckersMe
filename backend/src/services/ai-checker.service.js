@@ -532,32 +532,26 @@ Response: Return only the category name (one word) from the list above.
    * @returns {boolean} - Whether to respond
    */
   async shouldRespond(messageContent, conversationId = null) {
-    console.log('🔍 Starting smart relevance check for:', messageContent);
     
     // Basic filtering
     if (!messageContent || messageContent.length < 3) {
-      console.log('❌ Message too short');
       return false;
     }
 
     if (messageContent.includes('<Media omitted>') && messageContent.trim() === '<Media omitted>') {
-      console.log('❌ Media-only message');
       return false;
     }
 
     if (/^\d+$/.test(messageContent.trim())) {
-      console.log('❌ Pure number/ID');
       return false;
     }
 
     if (messageContent.trim().length <= 2) {
-      console.log('❌ Too short after trim');
       return false;
     }
 
     // Check for final/conclusive responses that don't need further interaction
     if (this.isFinalResponse(messageContent)) {
-      console.log('🛑 Final response detected - no need to respond');
       return false;
     }
 
@@ -565,17 +559,14 @@ Response: Return only the category name (one word) from the list above.
     if (this.geminiApiKey && conversationId) {
       try {
         const isRelevant = await this.checkMessageRelevanceWithAI(messageContent, conversationId);
-        console.log('🤖 AI relevance decision:', isRelevant);
         return isRelevant;
       } catch (error) {
-        console.log('⚠️ AI relevance check failed, falling back to pattern check:', error.message);
         return false;
       }
     }
 
     // Fallback: Pattern-based relevance check
     const hasRelevantPattern = this.hasTransactionRelevantPattern(messageContent);
-    console.log('📋 Pattern-based relevance:', hasRelevantPattern);
     return hasRelevantPattern;
   }
 
@@ -657,7 +648,6 @@ Response: YES or NO (single word only)
       return decision === 'YES';
       
     } catch (error) {
-      console.log('❌ AI relevance check error:', error.message);
       throw error;
     }
   }
@@ -755,7 +745,6 @@ Response: YES or NO (single word only)
     // Check if message matches any final response pattern
     for (const pattern of finalResponsePatterns) {
       if (pattern.test(messageLower)) {
-        console.log('🛑 Final response pattern matched:', pattern.toString());
         return true;
       }
     }
@@ -771,12 +760,10 @@ Response: YES or NO (single word only)
       const simpleAcks = ['haan', 'han', 'ha', 'ji', 'yes', 'ok', 'okay', 'theek', 'done', 'complete'];
       if (nonRespectfulWords.length <= 1 && 
           nonRespectfulWords.every(word => simpleAcks.includes(word))) {
-        console.log('🛑 Short respectful acknowledgment detected');
         return true;
       }
     }
     
-    console.log('✅ Not a final response - conversation can continue');
     return false;
   }
 }

@@ -107,32 +107,23 @@ class ConversationController {
       mentions,
       base64Image 
     });
-
+    
     wsManager.broadcastToConversation(conversationId, {
       type: 'new_message',
       message
     }, senderId);
-    
-    console.log('🔍 Checking AI trigger conditions:');
-    console.log('  AI_CHECKER_ENABLED:', process.env.AI_CHECKER_ENABLED);
-    console.log('  Content exists:', !!content);
-    console.log('  Content length:', content?.trim().length);
-    console.log('  Message content:', content);
+
+    // if(base64Image!=null) return;
     
     if (process.env.AI_CHECKER_ENABLED === 'true' && content && content.trim().length > 0) {
-      console.log('✅ AI checker conditions met - triggering AI processing');
       setImmediate(async () => {
         try {
-          console.log('🤖 Checking if AI should respond to:', content);
           const shouldRespond = await aiCheckerService.shouldRespond(content, conversationId);
           if (shouldRespond) {
-            console.log('✅ AI will respond - processing message');
             await aiCheckerService.processIncomingMessage(message, conversationId);
           } else {
-            console.log('❌ AI should not respond to this message');
           }
         } catch (error) {
-          console.log('💥 AI checker processing failed:', error.message);
           logger.error('AI checker processing failed:', {
             messageId: message._id,
             conversationId,
@@ -141,7 +132,6 @@ class ConversationController {
         }
       });
     } else {
-      console.log('❌ AI checker conditions not met');
     }
 
     return ResponseHandler.success(res, 'Message sent successfully', message, 201);
